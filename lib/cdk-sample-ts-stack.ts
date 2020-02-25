@@ -16,15 +16,7 @@ export class CdkSampleTsStack extends cdk.Stack {
       // This subnet is configured for the IGW. 
       // VPC class won't import new Subnet class instances declared in the code. 
       // And no subnet can make trouble for VPC to make IGW in the initialization.
-      subnetConfiguration: [{
-        name : 'privatesubnet',
-        subnetType : ec2.SubnetType.ISOLATED,
-        cidrMask: 28
-      }, {
-        name : 'publicsubnet',
-        subnetType : ec2.SubnetType.PUBLIC,
-        cidrMask: 28
-      }]
+      subnetConfiguration: []
     });
 
     // Subnets
@@ -56,9 +48,14 @@ export class CdkSampleTsStack extends cdk.Stack {
       mapPublicIpOnLaunch: true
     });
 
-    //const igw = new ec2.CfnInternetGateway(this, '')
+    const igw = new ec2.CfnInternetGateway(this, 'cdksample-igw');
+    const igwattachment = new ec2.CfnVPCGatewayAttachment(this, 'cdksample-igw-attachment', {
+      internetGatewayId: igw.ref,
+      vpcId: vpc.vpcId
+    });
 
-    // publicSubnetA.addDefaultInternetRoute(vpc. )
+    publicSubnetA.addDefaultInternetRoute(igw.ref, igwattachment);
+    publicSubnetC.addDefaultInternetRoute(igw.ref, igwattachment);
 
   }
 }
