@@ -27,7 +27,7 @@ export class CdkSampleTsStack extends cdk.Stack {
       mapPublicIpOnLaunch: false
     });
 
-    const privateSubnetB = new ec2.PrivateSubnet(this, 'privatesubnetc', {
+    const privateSubnetC = new ec2.PrivateSubnet(this, 'privatesubnetc', {
       availabilityZone : 'ap-northeast-2c',
       cidrBlock: '10.0.20.0/24',
       vpcId: vpc.vpcId,
@@ -56,6 +56,53 @@ export class CdkSampleTsStack extends cdk.Stack {
 
     publicSubnetA.addDefaultInternetRoute(igw.ref, igwattachment);
     publicSubnetC.addDefaultInternetRoute(igw.ref, igwattachment);
+
+    const sshandhttpsg = new ec2.SecurityGroup(this, 'sshandhttpsg', {
+      vpc: vpc,
+      securityGroupName: 'test-alb-sg-ssh-http',
+      description: 'alb test security group. It will allow ssh & http port',
+      allowAllOutbound: true
+    });
+
+    sshandhttpsg.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(22), 'allow public ssh');
+    sshandhttpsg.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'allow public http');
+
+    const amznImage = ec2.MachineImage.latestAmazonLinux({
+      generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
+      edition: ec2.AmazonLinuxEdition.STANDARD,
+      virtualization: ec2.AmazonLinuxVirt.HVM,
+      storage: ec2.AmazonLinuxStorage.GENERAL_PURPOSE
+    });
+
+    const userdata = ec2.UserData.custom("sudo yum update -y \nsudo yum install -y httpd24 php56 php56-mysqld \nsudo chkconfig httpd on\nsudo groupadd www\nsudo usermod -a -G www ec2-user\nsudo chgrp -R www /var/www\nsudo chmod 2775 /var/www\n");
+
+    const ec2insta = new ec2.Instance(this, 'insta', {
+      instanceType : ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),
+      machineImage: amznImage,
+      vpc: vpc,
+      userData: userdata,
+      allowAllOutbound: true,
+      instanceName: 'insta',
+      keyName: 'sample_keypair',
+      securityGroup: sshandhttpsg,
+      vpcSubnets: {
+        subnets: [privateSubnetA]
+      }
+    });
+
+    const ec2instc = new ec2.Instance(this, 'instc', {
+      instanceType : ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),
+      machineImage: amznImage,
+      vpc: vpc,
+      userData: userdata,
+      allowAllOutbound: true,
+      instanceName: 'insta',
+      keyName: 'sample_keypair',
+      securityGroup: sshandhttpsg,
+      vpcSubnets: {
+        subnets: [privateSubnetC]
+      }
+    });
 
   }
 }
