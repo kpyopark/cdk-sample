@@ -88,6 +88,15 @@ export class CdkSampleTsStack extends cdk.Stack {
       storage: ec2.AmazonLinuxStorage.GENERAL_PURPOSE
     });
 
+    const httpsg = new ec2.SecurityGroup(this, 'httpsg', {
+      vpc: vpc, 
+      securityGroupName: 'test-alb-sg-http',
+      description: 'alb test security group.It will allow http port only.',
+      allowAllOutbound: true
+    });
+
+    httpsg.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(22), 'allow public http');
+
     /**
      * '''shell
       #!/bin/bash -ex
@@ -130,8 +139,8 @@ export class CdkSampleTsStack extends cdk.Stack {
       vpc: vpc,
       userData: userdata,
       allowAllOutbound: true,
-      instanceName: 'insta',
-      keyName: ec2keypair',
+      instanceName: `${elemPrefix}-instanceA`,
+      keyName: ec2keypair,
       securityGroup: sshandhttpsg,
       vpcSubnets: {
         subnets: [privateSubnetA]
@@ -144,7 +153,7 @@ export class CdkSampleTsStack extends cdk.Stack {
       vpc: vpc,
       userData: userdata,
       allowAllOutbound: true,
-      instanceName: 'instc',
+      instanceName: `${elemPrefix}-instanceC`,
       keyName: ec2keypair,
       securityGroup: sshandhttpsg,
       vpcSubnets: {
@@ -171,7 +180,8 @@ export class CdkSampleTsStack extends cdk.Stack {
       internetFacing: true, 
       vpcSubnets: {
         subnets: [publicSubnetA, publicSubnetC]
-      }
+      },
+      securityGroup: httpsg
     });
 
     const listener = alb.addListener(`${elemPrefix}-httplistener`, {
