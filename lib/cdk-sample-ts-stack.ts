@@ -8,6 +8,7 @@ const vpcenv = ( process.env.vpcenv === undefined ) ? 'test' : process.env.vpcen
 const corp = (process.env.corpname === undefined ) ? 'samcorp' : process.env.corpname;
 const servicename = (process.env.servicename === undefined ) ? 'albtest' : process.env.servicename;
 const elemPrefix = `${vpcenv}-${corp}-${servicename}-`;
+const ec2keypair = ( process.env.keypair === undefined ) ? 'sample_keypair' : process.env.keypair;
 
 export class CdkSampleTsStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -130,7 +131,7 @@ export class CdkSampleTsStack extends cdk.Stack {
       userData: userdata,
       allowAllOutbound: true,
       instanceName: 'insta',
-      keyName: 'sample_keypair',
+      keyName: ec2keypair',
       securityGroup: sshandhttpsg,
       vpcSubnets: {
         subnets: [privateSubnetA]
@@ -144,7 +145,7 @@ export class CdkSampleTsStack extends cdk.Stack {
       userData: userdata,
       allowAllOutbound: true,
       instanceName: 'instc',
-      keyName: 'sample_keypair',
+      keyName: ec2keypair,
       securityGroup: sshandhttpsg,
       vpcSubnets: {
         subnets: [privateSubnetC]
