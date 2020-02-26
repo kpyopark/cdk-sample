@@ -7,7 +7,7 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 ## Prerequsite
  * Install aws-cdk & @aws-cdk/ec2 & @aws-cdk/aws-elasticloadbalancingv2
  * `npm install --save-data aws-cdk`         install aws-cdk
- * `npm install --save-data @aws-cdk/ec2`    install @aws-cdk/ec2 (which supports EC2instance and VPC classes)
+ * `npm install --save-data @aws-cdk/aws-ec2`    install @aws-cdk/ec2 (which supports EC2instance and VPC classes)
  * `npm install --save-data @aws-cdk/aws-elasticloadbalancingv2`    which supports ELB classes.
  * Configure environment variable keypair used in the initialization of EC2.
  * `export keypair=<your ec2 keypair name>`
